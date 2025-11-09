@@ -4,17 +4,8 @@ GO
 USE SneezePharma
 GO
 
---DROP DATABASE SneezePharma
---GO
+--CRIANDO TABELAS
 
-
-CREATE TABLE TelefonesClientes(
-id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-idCliente INT NOT NULL,
-CodPais VARCHAR(3) NOT NULL,
-CodArea VARCHAR(2) NOT NULL,
-Numero VARCHAR(9) NOT NULL
-);
 
 CREATE TABLE Clientes(
 idCliente INT NOT NULL PRIMARY KEY IDENTITY(1,1),
@@ -26,21 +17,32 @@ DataCadastro DATE NOT NULL,
 Situacao INT NOT NULL
 );
 
+CREATE TABLE TelefonesClientes(
+id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+idCliente INT NOT NULL,
+CodPais VARCHAR(3) NOT NULL,
+CodArea VARCHAR(2) NOT NULL,
+Numero VARCHAR(9) NOT NULL
+);
+
 CREATE TABLE ClientesRestritos(
 id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 idCliente INT NOT NULL UNIQUE
 );
 
-CREATE TABLE Vendas(
-idVenda INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-DataVenda DATE NOT NULL,
-idCliente INT NOT NULL
+CREATE TABLE Fornecedores(
+idFornecedor INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+CNPJ VARCHAR(14) NOT NULL UNIQUE,
+RazaoSocial VARCHAR(50) NOT NULL,
+Pais VARCHAR(20) NOT NULL,
+DataAbertura DATE NOT NULL,
+DataCadastro DATE NOT NULL,
+Situacao INT NOT NULL,
 );
 
-CREATE TABLE ItensVendas(
-idVenda INT NOT NULL,
-idMedicamento INT NOT NULL,
-Quantidade INT NOT NULL
+CREATE TABLE FornecedoresBloqueados(
+id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+idFornecedor INT NOT NULL UNIQUE
 );
 
 CREATE TABLE Medicamentos(
@@ -60,6 +62,29 @@ idMedicamento INT NOT NULL,
 Quantidade INT NOT NULL
 );
 
+CREATE TABLE Vendas(
+idVenda INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+DataVenda DATE NOT NULL,
+idCliente INT NOT NULL
+);
+
+CREATE TABLE ItensVendas(
+idVenda INT NOT NULL,
+idMedicamento INT NOT NULL,
+Quantidade INT NOT NULL
+);
+
+CREATE TABLE Compras(
+idCompra INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+DataCompra DATE NOT NULL,
+idFornecedor INT NOT NULL
+);
+CREATE TABLE ItensCompras(
+idCompra INT NOT NULL,
+idPrincipio INT NOT NULL,
+Quantidade INT NOT NULL,
+ValorUnitario DECIMAL(6,2) NOT NULL
+);
 CREATE TABLE Ingredientes(
 idProducao INT NOT NULL,
 idPrincipio INT NOT NULL,
@@ -71,34 +96,6 @@ idPrincipio INT NOT NULL PRIMARY KEY IDENTITY(1,1),
 Nome VARCHAR(20) NOT NULL UNIQUE,
 DataCadastro DATE NOT NULL,
 Situacao INT NOT NULL
-);
-
-CREATE TABLE ItensCompras(
-idCompra INT NOT NULL,
-idPrincipio INT NOT NULL,
-Quantidade INT NOT NULL,
-ValorUnitario DECIMAL(6,2) NOT NULL
-);
-
-CREATE TABLE Compras(
-idCompra INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-DataCompra DATE NOT NULL,
-idFornecedor INT NOT NULL
-);
-
-CREATE TABLE Fornecedores(
-idFornecedor INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-CNPJ VARCHAR(14) NOT NULL UNIQUE,
-RazaoSocial VARCHAR(50) NOT NULL,
-Pais VARCHAR(20) NOT NULL,
-DataAbertura DATE NOT NULL,
-DataCadastro DATE NOT NULL,
-Situacao INT NOT NULL,
-);
-
-CREATE TABLE FornecedoresBloqueados(
-id INT NOT NULL PRIMARY KEY IDENTITY(1,1),
-idFornecedor INT NOT NULL UNIQUE
 );
 
 CREATE TABLE Categorias(
