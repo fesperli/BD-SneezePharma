@@ -250,3 +250,50 @@ BEGIN
 END;
 GO
 
+--procedure para compra
+CREATE PROCEDURE sp_fazerCompra
+    @DataCompra DATE,
+    @idFornecedor INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @NovoIdCompra INT;
+
+    INSERT INTO Compras (DataCompra, idFornecedor)
+    VALUES (@DataCompra, @idFornecedor);
+
+    SET @NovoIdCompra = SCOPE_IDENTITY();
+
+    INSERT INTO ItensCompras (idCompra, idPrincipio, Quantidade, ValorUnitario)
+    SELECT @NovoIdCompra, idPrincipio, Quantidade, ValorUnitario
+    FROM #ItensCompra;
+
+    SELECT @NovoIdCompra AS CompraCriada;
+END;
+GO
+
+--procedure para venda 
+
+CREATE PROCEDURE sp_RealizarVenda
+    @DataVenda DATE,
+    @idCliente INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DECLARE @NovoIdVenda INT;
+
+    INSERT INTO Vendas (DataVenda, idCliente)
+    VALUES (@DataVenda, @idCliente);
+
+    SET @NovoIdVenda = SCOPE_IDENTITY();
+
+    INSERT INTO ItensVendas (idVenda, idMedicamento, Quantidade)
+    SELECT @NovoIdVenda, idMedicamento, Quantidade
+    FROM #ItensVenda;
+
+    SELECT @NovoIdVenda AS VendaCriada;
+END;
+GO
+
