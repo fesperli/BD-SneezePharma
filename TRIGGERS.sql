@@ -253,7 +253,10 @@ GO
 --procedure para compra
 CREATE PROCEDURE sp_fazerCompra
     @DataCompra DATE,
-    @idFornecedor INT
+    @idFornecedor INT,
+    @IdPrincipio INT,
+    @Quantidade INT,
+    @ValorUnitario DECIMAL(6,2)
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -265,9 +268,21 @@ BEGIN
 
     SET @NovoIdCompra = SCOPE_IDENTITY();
 
+    DECLARE @QtdItens INT;
+
+    SELECT @QtdItens = COUNT(*)
+    FROM ItensCompras
+    WHERE idCompra = @NovoIdCompra;
+
+    IF (@QtdItens >= 3)
+    BEGIN
+        RAISERROR('Esta compra já atingiu o limite máximo de 3 itens.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
     INSERT INTO ItensCompras (idCompra, idPrincipio, Quantidade, ValorUnitario)
-    SELECT @NovoIdCompra, idPrincipio, Quantidade, ValorUnitario
-    FROM #ItensCompra;
+    VALUES (@NovoIdCompra, @IdPrincipio, @Quantidade, @ValorUnitario);
 
     SELECT @NovoIdCompra AS CompraCriada;
 END;
@@ -277,7 +292,9 @@ GO
 
 CREATE PROCEDURE sp_RealizarVenda
     @DataVenda DATE,
-    @idCliente INT
+    @idCliente INT,
+    @idMedicamento INT,
+    @Quantidade INT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -289,11 +306,44 @@ BEGIN
 
     SET @NovoIdVenda = SCOPE_IDENTITY();
 
+    DECLARE @QtdItens INT;
+
+    SELECT @QtdItens = COUNT(*)
+    FROM ItensVendas
+    WHERE idVenda = @NovoIdVenda;
+
+    IF (@QtdItens >= 3)
+    BEGIN
+        RAISERROR('Esta venda já atingiu o limite máximo de 3 itens.', 16, 1);
+        ROLLBACK TRANSACTION;
+        RETURN;
+    END
+
     INSERT INTO ItensVendas (idVenda, idMedicamento, Quantidade)
-    SELECT @NovoIdVenda, idMedicamento, Quantidade
-    FROM #ItensVenda;
+    VALUES (@NovoIdVenda, @idMedicamento, @Quantidade);
 
     SELECT @NovoIdVenda AS VendaCriada;
 END;
 GO
+
+
+CREATE OR ALTER PROCEDURE sp_RegistrarProducao
+    @idMedicamento INT,
+    @dataProducao DATE,
+    @quantidade INT,
+    @idPrincipio INT,
+    @quantidadePrincipio INT
+AS
+BEGIN
+    DECLARE @idProducao INT;
+
+    INSERT INTO Producoes (DataProducao, idMedicamento, Quantidade)
+    VALUES (@dataProducao, @idMedicamento, @quantidade);
+
+    SET @idProducao = SCOPE_IDENTITY();
+
+    INSERT INTO Ingredientes (idProducao, idPrincipio, Quantidade)
+    VALUES (@idProducao, @idPrincipio, @quantidadePrincipio);
+END;
+
 
